@@ -1,2 +1,20 @@
-###
-http://localhost:3000/post
+### GET ALL POSTS
+GET http://localhost:3000/post
+
+#### GET POST BY ID
+GET http://localhost:3000/post/22
+
+### UPDATE POST
+PATCH http://localhost:3000/post/1
+Content-Type: application/json
+
+{
+  "title": "Updated Post Again",
+  "content": "This is the updated content of the post."
+}
+
+### DELETE POST 
+DELETE http://localhost:3000/post/22
+
+### DELETE POST HARD DELETE
+DELETE http://localhost:3000/post/12?hard=true

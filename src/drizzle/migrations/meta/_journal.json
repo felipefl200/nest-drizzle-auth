@@ -8,6 +8,13 @@
       "when": 1744377810503,
       "tag": "0000_modern_captain_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744664922560,
+      "tag": "0001_mute_blindfold",
+      "breakpoints": true
     }
   ]
 }

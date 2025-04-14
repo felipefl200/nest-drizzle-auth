@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
+import { integer, pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core'
 import { comments } from './comment.schema'
 import { users } from './user.schema'
 
@@ -9,7 +9,8 @@ export const posts = pgTable('posts', {
   content: text('content').notNull(),
   authorId: integer('authorId')
     .references(() => users.id)
-    .notNull()
+    .notNull(),
+  deletedAt: timestamp('deletedAt')
 })
 
 export const postRelations = relations(posts, ({ one, many }) => ({
