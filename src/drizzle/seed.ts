@@ -115,7 +115,7 @@ async function runSeed() {
   } catch (error) {
     console.error('🚨 Error seeding database:', error)
   } finally {
-    console.log('🚦 Closing database connection')
+    console.log('🛑 Closing database connection')
     await pool.end()
   }
 }
