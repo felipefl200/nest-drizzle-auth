@@ -15,11 +15,6 @@ type PostWithRelations = InferSelectModel<typeof posts> & {
 export class PostService {
   constructor(@Inject(DrizzleDB) private readonly db: DrizzleDBType) {}
 
-  // // Função auxiliar para filtrar itens não excluídos
-  // private isNotDeleted(posts: any) {
-  //   return isNull(posts.deletedAt)
-  // }
-
   async create(createPostDto: CreatePostDto) {
     return await this.db.insert(posts).values(createPostDto).returning()
   }
@@ -71,9 +66,7 @@ export class PostService {
       where: (posts, { eq }) => eq(posts.id, id)
     })
 
-    if (!post) {
-      return null
-    }
+    if (!post) return null
 
     return await this.db.transaction(async (tx) => {
       // Exclui os comentários

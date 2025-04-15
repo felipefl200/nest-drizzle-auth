@@ -18,3 +18,13 @@ DELETE http://localhost:3000/post/22
 
 ### DELETE POST HARD DELETE
 DELETE http://localhost:3000/post/12?hard=true
+
+### CREATE USER
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@test1.net",
+  "password": "123456"
+}
