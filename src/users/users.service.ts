@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { eq, isNull } from 'drizzle-orm'
 import { PasswordService } from 'src/common/services/password.service'
 import { DrizzleDB } from 'src/drizzle/drizzle.provider'
-import { comments, posts, users } from 'src/drizzle/schema'
+import { comments, groupMembers, posts, profileInfo, users } from 'src/drizzle/schema'
 import { DrizzleDBType } from 'src/drizzle/types/drizzle'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -50,6 +50,14 @@ export class UsersService {
     return user
   }
 
+  async findByEmail(email: string) {
+    const user = await this.db.query.users.findFirst({
+      where: (users, { eq, and }) => and(eq(users.email, email), isNull(users.deletedAt))
+    })
+    if (!user) return null
+    return user
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.db.query.users.findFirst({
       where: (users, { eq, and }) => and(eq(users.id, id), isNull(users.deletedAt))
@@ -91,13 +99,32 @@ export class UsersService {
     })
     if (!user) return null
 
-    await this.db.transaction(async (tx) => {
-      // Exclui os comentários
-      await tx.delete(comments).where(eq(comments.authorId, id))
-      // Exclui o posts
-      await tx.delete(posts).where(eq(posts.authorId, id)).returning()
+    return await this.db.transaction(async (tx) => {
+      // 1. Excluir registros da tabela group_members que referenciam este usuário
+      await tx.delete(groupMembers).where(eq(groupMembers.userId, id))
 
-      // Exclui o usuário
+      // 2. Encontrar todos os posts do usuário
+      const userPosts = await tx.query.posts.findMany({
+        where: (posts, { eq }) => eq(posts.authorId, id)
+      })
+
+      // 3. Para cada post do usuário, excluir todos os comentários relacionados
+      for (const post of userPosts) {
+        await tx.delete(comments).where(eq(comments.postId, post.id))
+      }
+
+      // 4. Excluir os comentários feitos pelo usuário em posts de outras pessoas
+      await tx.delete(comments).where(eq(comments.authorId, id))
+
+      // 5. Excluir os posts do usuário
+      await tx.delete(posts).where(eq(posts.authorId, id))
+
+      // 6. Se houver outras tabelas relacionadas (como profileInfo), excluir também
+      if (profileInfo) {
+        await tx.delete(profileInfo).where(eq(profileInfo.userId, id))
+      }
+
+      // 7. Finalmente, excluir o usuário
       const deletedUsers = await tx.delete(users).where(eq(users.id, id)).returning()
 
       if (deletedUsers.length === 0) return null

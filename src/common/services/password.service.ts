@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { compare, hash } from 'bcrypt'
 
 @Injectable()
 export class PasswordService {
-  // Número de rounds para gerar o salt
-  // 12 é um bom equilíbrio entre segurança e performance
-  private readonly SALT_ROUNDS = 12
-
-  constructor() {
-    console.log(`SALT_ROUNDS: ${this.SALT_ROUNDS}`)
+  private readonly SALT_ROUNDS: number
+  /**
+   * Construtor da classe PasswordService
+   * @param configService - Serviço de configuração do NestJS
+   */
+  constructor(private configService: ConfigService) {
+    // Obtém o valor do .env e converte para número
+    // Usa 12 como fallback se não estiver definido
+    this.SALT_ROUNDS = Number(this.configService.get<string>('SALT_ROUNDS', '12'))
   }
+
   /**
    * Gera um hash seguro da senha
    */

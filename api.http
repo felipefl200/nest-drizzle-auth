@@ -28,3 +28,24 @@ Content-Type: application/json
   "email": "john@test1.net",
   "password": "123456"
 }
+
+### Update USER
+PATCH http://localhost:3000/users/1 
+Content-Type: application/json
+
+{
+  "name": "John Doe Silva",
+  "password": "123456789"
+}
+
+### GET ALL USERS
+GET http://localhost:3000/users
+
+### GET USER BY ID
+GET http://localhost:3000/users/1
+
+### DELETE USER
+DELETE http://localhost:3000/users/1
+
+### DELETE USER HARD DELETE
+DELETE http://localhost:3000/users/50?hard=true
